@@ -1,5 +1,14 @@
 # Welcome to your Expo app 👋
 
+#Email válidos (reqres.in)
+- emma.wong@reqres.in
+- eve.holt@reqres.in
+- charles.morris@reqres.in
+#Válida cualquier contraseña
+
+
+
+
 This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
 
 ## Get started
