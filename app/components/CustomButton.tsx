@@ -1,0 +1,19 @@
+import React from 'react'
+import { Text, View } from 'react-native'
+import { SafeAreaView } from 'react-native-safe-area-context'
+import { styles } from '../styles'
+import { TouchableOpacity, TouchableOpacityProps } from 'react-native'
+
+interface CustomButtonProps extends TouchableOpacityProps {
+    label : string;
+}
+
+export const CustomButton = (props: CustomButtonProps) => {
+    return (
+       <View style={styles.container}>
+        <TouchableOpacity style={styles.button} onPress={props.onPress}>
+          <Text>{props.label}</Text>
+        </TouchableOpacity>
+        </View>
+    );
+}
