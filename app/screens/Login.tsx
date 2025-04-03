@@ -1,7 +1,7 @@
 import { Text, View, Image } from "react-native";
 import { SafeAreaView } from "react-native";
 import { CustomInput } from "../components/CustomInput";
-import { CustomButton } from "../components/CustomButton";
+import  { CustomButton } from "../components/CustomButton";
 import { styles } from "../styles";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
