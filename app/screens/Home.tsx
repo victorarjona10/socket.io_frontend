@@ -1,12 +1,11 @@
-import { View, Text, TouchableOpacity } from "react-native";
+import { View, Text, TouchableOpacity, SafeAreaView, ActivityIndicator } from "react-native";
 import { useState, useEffect } from "react";
 import { FlatList } from "react-native-gesture-handler";
 import { styles } from "../styles";
-import { SafeAreaView } from "react-native";
 import { CustomButton } from "../components/CustomButton";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import { RootStackParamList } from "../navigation/ScreenType";
+import { RootStackParamList } from "../navigation/screenType";
 
 type User = {
     id: number;
@@ -43,6 +42,7 @@ export const Home = () => {
     return (
       <View>
         <Text>Cargando usuarios...</Text>
+        <ActivityIndicator size="large" color="#0000ff" />
       </View>
     );
   }

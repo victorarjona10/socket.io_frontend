@@ -8,11 +8,16 @@ interface CustomButtonProps extends TouchableOpacityProps {
     label : string;
 }
 
-export const CustomButton = (props: CustomButtonProps) => {
+export const CustomButton: React.FC<CustomButtonProps> = ({label,onPress,...rest}) => {
     return (
        <View style={styles.container}>
-        <TouchableOpacity style={styles.button} onPress={props.onPress}>
-          <Text>{props.label}</Text>
+        <TouchableOpacity style={styles.button}
+         onPress={(event) => {
+            if (onPress) onPress(event);
+         }}
+         {...rest}
+         >
+          <Text>{label}</Text>
         </TouchableOpacity>
         </View>
     );
