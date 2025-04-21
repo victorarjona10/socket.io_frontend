@@ -8,7 +8,7 @@ import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../navigation/screenType";
 
 type User = {
-    id: number;
+    _id: number;
     name: string;
     email: string;
     phone: string;
@@ -26,7 +26,10 @@ export const Home = () => {
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const response = await fetch('https://jsonplaceholder.typicode.com/users');
+        const response = await fetch('http://localhost:9000/api/users',{
+          method: "GET",
+          headers: { "Content-Type": "application/json" },
+        });
         const data = await response.json();
         setUsers(data);
       } catch (error) {
@@ -52,7 +55,7 @@ export const Home = () => {
       <Text style={styles.title}>Lista de usuarios:</Text>
       <FlatList
         data={users}
-        keyExtractor={(item) => item.id.toString()}
+        keyExtractor={(item) => item._id.toString()}
         renderItem={({ item }) => (
           <TouchableOpacity style={styles.userCard} onPress={() => navigation.navigate("Profile", { user: item})}>
             <Text style={styles.userName}>{item.name}</Text>
@@ -60,6 +63,12 @@ export const Home = () => {
           </TouchableOpacity>
         )}
       />
+      <Text style={styles.title}>Grupos para chatear:</Text>
+      <TouchableOpacity style={styles.userCard} onPress={() => navigation.navigate("Group")}>
+        <Text style={styles.userName}>Go to Group</Text>
+      </TouchableOpacity>
+
     </SafeAreaView>
+
   );
 };
