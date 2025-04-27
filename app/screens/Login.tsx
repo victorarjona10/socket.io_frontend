@@ -6,6 +6,7 @@ import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { RootStackParamList, screenProps } from "../navigation/screenType";
 import { useState, useCallback } from "react";
+import * as SecureStore from "expo-secure-store";
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList, "Login">;
 
@@ -26,11 +27,17 @@ export const Login = () => {
         Alert.alert("Error", "Por favor, completa todos los campos.");
         return;
       }
+
+      const secureStoreAvailable = await SecureStore.isAvailableAsync();
   
       try {
         const response = await fetch("http://localhost:9000/api/login", {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json",
+            ...( secureStoreAvailable ? {"x-client": "mobile"} : {}),
+          },
+
           body: JSON.stringify({ email, password }),
         });
   
@@ -41,6 +48,11 @@ export const Login = () => {
           window.alert("Éxito en el inicio de sesión ✅");
           console.log("Éxito en el inicio de sesión ✅");
           Alert.alert("Éxito", "Inicio de sesión correcto ✅");
+          if (secureStoreAvailable) {
+            SecureStore.setItem("accessToken", data.accessToken);
+          } else {
+            localStorage.setItem("accessToken", data.accessToken);
+          }
           navigation.navigate("Home");
         } else {
           window.alert("Error. Inicio de sesión fallido ❌");
