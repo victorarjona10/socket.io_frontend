@@ -1,33 +1,65 @@
 import { useRoute } from "@react-navigation/native";
 import { View, Text, TextInput, Button } from "react-native";
 import { styles } from "../styles";
-import { io } from "socket.io-client";
-import { useState, useEffect } from "react";
+import { io, Socket } from "socket.io-client";
+import { useState, useEffect, useRef } from "react";
+import * as SecureStore from "expo-secure-store";
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import { RootStackParamList } from "../navigation/screenType";
+import { useNavigation } from "expo-router";
 
-// Cambia el puerto al correcto (9000 si el servidor está configurado así)
-const socket = io("http://localhost:9001");
+type NavigationProp = NativeStackNavigationProp<RootStackParamList, "Group">;
 
 export const Group = () => {
-    const route = useRoute();
+    const navigation = useNavigation<NavigationProp>();
 
     const [message, setMessage] = useState(""); // Estado para el mensaje
     const [receivedMessages, setReceivedMessages] = useState<string[]>([]); // Estado para mensajes recibidos
 
+    const socketRef = useRef<Socket | undefined>(undefined);
     // Escucha mensajes del servidor
     useEffect(() => {
-        socket.on("receive message", (data) => {
-            console.log("Mensaje recibido del servidor:", data);
-            setReceivedMessages((prevMessages) => [...prevMessages, data.content]);
-        });
+        async function createSocket() {
+            const secureStoreAvailable = await SecureStore.isAvailableAsync();
+            const token = secureStoreAvailable ? 
+                SecureStore.getItem("accessToken") : 
+                localStorage.getItem("accessToken");
+            
+            // Cambia el puerto al correcto (9000 si el servidor está configurado así)
+            socketRef.current = io("http://localhost:9001", {
+                auth: {
+                    token,
+                },
+            });
+            console.log("websocket created");
 
+            socketRef.current.on("receive message", (data) => {
+                console.debug("Mensaje recibido del servidor: ", data);
+                setReceivedMessages((prevMessages) => [...prevMessages, data.content]);
+            });
+
+            socketRef.current.on("status", (data) => {
+                console.debug("Mensaje de estado recibido: ", data);
+                switch (data.status) {
+                    case "unauthorized":
+                        navigation.navigate("Login");
+                        break;
+                }
+                
+            })
+        }
+        createSocket();
         return () => {
-            socket.off("receive message"); // Limpia el listener al desmontar el componente
+            if (!socketRef.current) return;
+            socketRef.current.off("receive message"); // Limpia el listener al desmontar el componente
         };
     }, []);
 
     const sendMessage = () => {
         if (message.trim() !== "") {
-            socket.emit("send message", { content: message }); // Envía el mensaje al servidor
+            if (!socketRef.current) return;
+            console.log(socketRef);
+            socketRef.current.emit("send message", { content: message }); // Envía el mensaje al servidor
             setMessage(""); // Limpia el input después de enviar
         }
     };
