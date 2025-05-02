@@ -42,14 +42,36 @@ export const Group = () => {
 
   // Conectar al servidor de Socket.IO
   useEffect(() => {
-    // Conectar al servidor en el puerto 3001
-    socketRef.current = io("http://localhost:3001"); // Cambia por tu IP local
+    async function createSocket() {
+      const secureStoreAvailable = await SecureStore.isAvailableAsync();
+      const token = secureStoreAvailable ? 
+          SecureStore.getItem("accessToken") :
+          localStorage.getItem("accessToken");
+          
+      // Conectar al servidor en el puerto 3001
+      socketRef.current = io("http://localhost:3001", { // Cambia por tu IP local
+        auth: {
+          token,
+        },
+      }); 
 
-    // Escuchar mensajes entrantes con el evento receive_message
-    socketRef.current.on("receive_message", (data: ChatMessage) => {
-      console.log("Mensaje recibido:", data);
-      setMessageList((list) => [...list, data]);
-    });
+      // Escuchar mensajes entrantes con el evento receive_message
+      socketRef.current.on("receive_message", (data: ChatMessage) => {
+        console.log("Mensaje recibido:", data);
+        setMessageList((list) => [...list, data]);
+      });
+
+      socketRef.current.on("status", (data) => {
+        console.debug("Mensaje de estado recibido: ", data);
+        switch (data.status) {
+          case "unauthorized":
+            navigation.navigate("Login");
+            break;
+        }
+      });
+
+    }
+    createSocket();
 
     // Limpiar al desmontar
     return () => {
